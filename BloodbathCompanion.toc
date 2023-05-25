@@ -1,0 +1,16 @@
+## Interface: 11403
+## Title: Bloodbath Companion
+## Version: 1.0
+## Author: Sprotch
+## Notes: Kill counter and useful metrics for your Bloodbath HC character
+## SavedVariablesPerCharacter: bbc_char_db
+## SavedVariables: bbc_user_config
+## DefaultState: enabled
+
+defaults.lua
+event_manager.lua
+frames.lua
+commands.lua
+utils.lua
+
+main.lua
