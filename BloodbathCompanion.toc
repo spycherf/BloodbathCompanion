@@ -1,6 +1,6 @@
 ## Interface: 11403
 ## Title: Bloodbath Companion
-## Version: 1.2.0
+## Version: 1.2.1
 ## Author: Sprotch
 ## Notes: Kill counter and useful metrics for your Bloodbath HC character
 ## SavedVariablesPerCharacter: bbc_char_db

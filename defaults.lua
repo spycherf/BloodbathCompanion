@@ -14,6 +14,7 @@ BB.default_db = {
   total_kills = 0,            -- total mobs killed (incl. no XP)
   xp_kills = 0,               -- mobs killed with XP gain
   xp_kills_per_lvl = {},      -- mobs killed with XP gain at each level
+  cum_lvl_diff = 0,           -- cumulated level differences with mobs
 
   last_n_mobs_xp = {},        -- individual XP gains from the last n mobs
   last_n_lvl_diffs = {},      -- difference with level of the last n mobs

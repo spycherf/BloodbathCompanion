@@ -123,13 +123,16 @@ BB.register("CHAT_MSG_COMBAT_XP_GAIN",
 
       -- Save difference with mob level (from COMBAT_LOG_EVENT_UNFILTERED)
       local lvl_diff = 0
-      if mob_lvl ~= -1 then lvl_diff = mob_lvl - lvl end
+      if mob_lvl > 0 then  -- -1 = special mob, 0 = no target
+        lvl_diff = mob_lvl - lvl
+      end
 
       if table.getn(BB.db.last_n_lvl_diffs) >= BB.config.log_limit then
         table.remove(BB.db.last_n_lvl_diffs)
       end
 
       table.insert(BB.db.last_n_lvl_diffs, 1, lvl_diff)
+      BB.db.cum_lvl_diff = BB.db.cum_lvl_diff + lvl_diff
 
     else  -- a quest has been completed
       BB.db.quests = BB.db.quests + 1
@@ -212,20 +215,46 @@ BB.register("PLAYER_LEVEL_UP",
         BB.db.time_per_lvl[prev_lvl] = BB.db.prev_lvl_time
 
         -- Report about /played time and time spent in combat
-        local combat_t_pct = BB.db.total_combat_time / BB.db.total_time * 100
-        local prev_lvl_combat_t_pct = BB.db.combat_time_per_lvl[prev_lvl] / BB.db.time_per_lvl[prev_lvl] * 100
-
         BB.print_addon_msg("Congrats!")
         print(
           "Time spent in previous level: " ..
           BB.highlight(BB.display_t(BB.db.prev_lvl_time))
         )
+        print("So far...")
         print(
-          "So far, you have spent " ..
-          BB.highlight(string.format("%.1f", combat_t_pct)) ..
+          "- You have spent " ..
+          BB.highlight(
+            string.format(
+              "%.1f",
+              BB.db.total_combat_time / BB.db.total_time * 100
+            )
+          ) ..
           "% of your time in combat! (" ..
-          BB.highlight(string.format("%.1f", prev_lvl_combat_t_pct)) ..
+          BB.highlight(
+            string.format(
+              "%.1f",
+              BB.db.combat_time_per_lvl[prev_lvl] / BB.db.time_per_lvl[prev_lvl] * 100
+            )
+          ) ..
           "% in previous level)"
+        )
+        -- Report about the average level difference with mobs
+        local avg_lvl_diff = BB.db.cum_lvl_diff / BB.db.xp_kills
+        local comp_str = ""
+        if avg_lvl_diff < 0 then comp_str = "lower" else comp_str = "higher" end
+
+        print(
+          "- You have been fighting mobs " ..
+          BB.highlight(
+            string.format(
+              "%.1f",
+              math.abs(avg_lvl_diff)
+            )
+          ) ..
+          string.format(
+            " level(s) %s than you on average!",
+            comp_str
+          )
         )
       end
     )
