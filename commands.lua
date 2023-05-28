@@ -134,7 +134,7 @@ local function show_stats()
 
     print(string.format("Based on the last %d mobs:", n))
     print(
-      "- Avg. mob per minute (in combat) =",
+      "- Avg. mobs per minute (in combat) =",
       BB.highlight(string.format("%.1f", mobs_per_min))
     )
     print(
