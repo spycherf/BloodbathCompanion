@@ -22,7 +22,7 @@ local function summarize_table_by_lvl(var, range)
         intro = string.format("Level %d-%d: ", i, math.min(upper_bound, 60))
         msg = msg .. intro .. string.rep(" ", 13 - string.len(intro))
       else
-        intro = string.format("level %d: ", i)
+        intro = string.format("Level %d: ", i)
         msg = msg .. intro .. string.rep(" ", 15 - string.len(intro))
       end
     end
@@ -89,7 +89,7 @@ local function customize_kc(args)
       BB.print_addon_msg("Kill counter color to default")
     else
       BB.kc:reset_defaults()
-      BB.print_addon_msg("Kill counter reset to default")
+      BB.print_addon_msg("Kill counter reset to default settings")
     end
   else
     BB.print_addon_msg("Invalid command")
@@ -101,6 +101,7 @@ local function show_stats()
   local n = BB.config.log_limit
   local current_sample_size = math.min(
     table.getn(BB.db.last_n_mobs_xp),
+    table.getn(BB.db.last_n_lvl_diffs),
     table.getn(BB.db.last_n_kill_times)
   )
   if current_sample_size == 0 then
@@ -111,16 +112,19 @@ local function show_stats()
 
     -- Compute and report averages
     local xp = 0
+    local lvl_diff = 0
     local combat_t = 0
 
     for i=1,n do
       xp = xp + BB.db.last_n_mobs_xp[i]
+      lvl_diff = lvl_diff + BB.db.last_n_lvl_diffs[i]
       combat_t = combat_t + BB.db.last_n_kill_times[i]
     end
 
-    local avg_xp = xp / n
-    local avg_combat_t = combat_t / n
     local mobs_per_min = n / combat_t * 60
+    local avg_xp = xp / n
+    local avg_lvl_diff = lvl_diff / n
+    local avg_combat_t = combat_t / n
 
     local xp_to_ding = UnitXPMax("player") - UnitXP("player")
     local mobs_to_ding = xp_to_ding / avg_xp
@@ -136,6 +140,10 @@ local function show_stats()
     print(
       "- Avg. mob XP gain =",
       BB.highlight(string.format("%.2f", avg_xp))
+    )
+    print(
+      "- Avg. level difference =",
+      BB.highlight(string.format("%.2f", avg_lvl_diff))
     )
     print(
       "- Avg. fight duration (s) =",
@@ -172,6 +180,25 @@ local function show_stats()
         )
       )
     end
+  end
+end
+
+-- Command: change fight log size (/bbc log)
+local function set_log_limit(args)
+  local n = args:match("%d+")
+
+  if n then
+    n = tonumber(n)
+    if n <= 300 and n > 0 then
+      BB.config.log_limit = n
+      BB.print_addon_msg("Fight log size set to " .. BB.highlight(n))
+    else
+      BB.print_addon_msg("Enter a number between 1 and 300")
+    end
+  else
+    n = BB.default_config.log_limit
+    BB.config.log_limit = n
+    BB.print_addon_msg("Fight log size reset to " .. n)
   end
 end
 
@@ -240,10 +267,25 @@ local function show_help()
   print("- " .. BB.highlight("stats") .. " or " .. BB.highlight("s"))
   print(
     "  Displays average mob XP gain + average fight duration " ..
-    string.format("based on the last %d mobs, ", BB.config.log_limit) ..
+    string.format(
+      "based on the last %d mobs (can be changed with /bbc log), ",
+      BB.config.log_limit
+    ) ..
     "then estimates the number of mobs to kill and " ..
     "combat + total time to reach the next level.\n" ..
     "Can also be shown by right clicking the kill counter."
+  )
+
+  -- see set_log_limit()
+  print("- " .. BB.highlight("log [size]"))
+  print(
+    "  Changes the number of last fights logged in the database, " ..
+    "which is used by /bbc stats to compute averages " ..
+    "(minimum = 1, maximum = 300).\n" ..
+    string.format(
+      "If no number specified, reverts to default value (%d).",
+      BB.default_config.log_limit
+    )
   )
 
   -- see show_db()
@@ -268,6 +310,8 @@ local function slash_command_handler(args, editbox)
     customize_kc(args)
   elseif args:match("^stat") or args:match("^s$") then
     show_stats()
+  elseif args:match("^log") then
+    set_log_limit(args)
   elseif args:match("^print") or args:match("^pp") then
     show_db(args)
   else

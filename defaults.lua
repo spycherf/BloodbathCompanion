@@ -16,6 +16,7 @@ BB.default_db = {
   xp_kills_per_lvl = {},      -- mobs killed with XP gain at each level
 
   last_n_mobs_xp = {},        -- individual XP gains from the last n mobs
+  last_n_lvl_diffs = {},      -- difference with level of the last n mobs
   last_n_kill_times = {},     -- individual kill times from the last n mobs
 
   total_combat_time = 0,      -- total time spent in combat (excl. fleeing)
@@ -28,7 +29,7 @@ BB.default_db = {
 }
 
 BB.default_config = {
-  log_limit = 20,             -- number of last fights to log (XP + duration)
+  log_limit = 30,             -- number of last fights to log (XP + duration)
 
   show_kc = true,             -- kill counter settings
   kc_width = 256,
