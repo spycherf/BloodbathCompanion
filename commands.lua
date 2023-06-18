@@ -41,15 +41,15 @@ local function customize_kc(args)
 
   -- Show/hide the kill counter
   if args:match("kills?$") or args:match("kc$") then
+    BB.kc:toggle()
     local state = ""
-
+    
     if BB.config.show_kc then
       state = "on"
     else
       state = "off"
     end
-
-    BB.kc:toggle()
+    
     BB.print_addon_msg("Kill counter " .. state)
 
   -- Change color
