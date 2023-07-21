@@ -2,7 +2,7 @@ local addon, BB = ...
 
 -- Print addon name with some formatting
 function BB.print_addon_msg(msg)
-  print ("|cffbb1337" .. "[" .. addon .. "]|r " .. msg)
+  print("|cffbb1337" .. "[" .. addon .. "]|r " .. msg)
 end
 
 -- Highlight text for display

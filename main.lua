@@ -79,7 +79,7 @@ BB.register("PLAYER_LEAVE_COMBAT",
       combat_start_t = time()  -- reset to handle multiple mobs in same fight
 
       -- Save kill time
-      if table.getn(BB.db.last_n_kill_times) >= BB.config.log_limit then
+      if #BB.db.last_n_kill_times >= BB.config.log_limit then
         table.remove(BB.db.last_n_kill_times)
       end
 
@@ -115,7 +115,7 @@ BB.register("CHAT_MSG_COMBAT_XP_GAIN",
       end
 
       -- Save XP gain
-      if table.getn(BB.db.last_n_mobs_xp) >= BB.config.log_limit then
+      if #BB.db.last_n_mobs_xp >= BB.config.log_limit then
         table.remove(BB.db.last_n_mobs_xp)
       end
 
@@ -127,7 +127,7 @@ BB.register("CHAT_MSG_COMBAT_XP_GAIN",
         lvl_diff = mob_lvl - lvl
       end
 
-      if table.getn(BB.db.last_n_lvl_diffs) >= BB.config.log_limit then
+      if #BB.db.last_n_lvl_diffs >= BB.config.log_limit then
         table.remove(BB.db.last_n_lvl_diffs)
       end
 

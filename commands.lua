@@ -36,6 +36,14 @@ local function summarize_table_by_lvl(var, range)
   print(msg)
 end
 
+local function get_table_size(t)
+  local count = 0
+  for k,v in pairs(t) do
+    count = count + 1
+  end
+  return count
+end
+
 -- Command: toggle and customize kill counter (/bbc kills, /bbc kc)
 local function customize_kc(args)
 
@@ -43,13 +51,13 @@ local function customize_kc(args)
   if args:match("kills?$") or args:match("kc$") then
     BB.kc:toggle()
     local state = ""
-    
+
     if BB.config.show_kc then
       state = "on"
     else
       state = "off"
     end
-    
+
     BB.print_addon_msg("Kill counter " .. state)
 
   -- Change color
@@ -64,7 +72,7 @@ local function customize_kc(args)
         table.insert(colors, tonumber(v))
       end
 
-      if table.getn(colors) == 4 then
+      if #colors == 4 then
         local r, g, b, a = unpack(colors)
 
         if r <= 1 and g <= 1 and b <= 1 and a <= 1 then
@@ -100,9 +108,9 @@ end
 local function show_stats()
   local n = BB.config.log_limit
   local current_sample_size = math.min(
-    table.getn(BB.db.last_n_mobs_xp),
-    table.getn(BB.db.last_n_lvl_diffs),
-    table.getn(BB.db.last_n_kill_times)
+    #BB.db.last_n_mobs_xp,
+    #BB.db.last_n_lvl_diffs,
+    #BB.db.last_n_kill_times
   )
   if current_sample_size == 0 then
     BB.print_addon_msg("Requires sample size of at least 1")
@@ -156,15 +164,13 @@ local function show_stats()
     print("- Est. combat time =", BB.highlight(BB.display_t(combat_t_to_ding)))
 
     -- Give info about combat time to played time ratio
-    local lvl = UnitLevel("player")
+    local cum_combat_t = 0
+    local cum_t = 0
 
-    if lvl > 1 then
-      local cum_combat_t = 0
-      local cum_t = 0
-
-      for i=1,lvl-1 do
-        cum_combat_t = cum_combat_t + BB.db.combat_time_per_lvl[i]
-        cum_t = cum_t + BB.db.time_per_lvl[i]
+    if get_table_size(BB.db.combat_time_per_lvl) > 0 then
+      for k,v in pairs(BB.db.combat_time_per_lvl) do
+        cum_combat_t = cum_combat_t + v
+        cum_t = cum_t + BB.db.time_per_lvl[k]
       end
 
       local cum_combat_t_pct = cum_combat_t / cum_t * 100
@@ -175,7 +181,7 @@ local function show_stats()
         string.format(
           "(Up to level %d, %.1f%% " ..
           "of total time was spent in combat)",
-          lvl,
+          UnitLevel("player"),
           cum_combat_t / cum_t * 100
         )
       )
@@ -295,7 +301,7 @@ local function show_help()
   )
   print(
     "  Displays the most relevant data from the character's database " ..
-    "(for full data, use /dump bbc_char_db instead)."
+    "(for full data, check BloodbathCompanion.lua file instead)."
   )
   print(
     "  If lvls_per_row is specified (default = 10), " ..
